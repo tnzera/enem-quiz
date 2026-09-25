@@ -18,31 +18,11 @@ Monorepo simples com dois apps:
 
 ```bash
 cd apps/api
-cp .env.example .env     # ajuste ENEM_API_BASE se necessário
+cp .env.example .env     
 npm install
-npm run start:dev        # http://localhost:3333
+npm run start:dev       
 ```
 
 Endpoints:
 - `GET /daily` — questão do dia (sem o gabarito).
 - `POST /daily/answer` — body `{ deviceToken, year, index, language, choice }`; valida no servidor e retorna `{ correct, correctAlternative, streak, alreadyAnswered }`.
-
-## Front (`web/`)
-
-```bash
-cd apps/web
-npm install
-npm run dev              # http://localhost:5173
-```
-
-O Vite encaminha `/api/*` para o backend (`http://localhost:3333`), evitando CORS.
-
-## Estado e próximos passos
-
-Funciona nesta etapa: seleção diária determinística (por data), validação server-side com gabarito oculto, uma resposta por dia e streak. A identidade é anônima (um `deviceToken` no `localStorage`), pois o login (OAuth) é da Etapa 2.
-
-Próximo passo (persistência com **Postgres nativo + TypeORM**):
-- adicionar `TypeOrmModule` no `AppModule` e um `DataSource`;
-- criar as entidades `users`, `answers`, `daily_challenges` e `questions`;
-- implementar o `AnswersRepository` com TypeORM;
-- ingestão do índice `questions` (com flags de imagem) para a seleção diária com curadoria.
