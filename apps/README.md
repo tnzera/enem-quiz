@@ -22,8 +22,8 @@ npm run start:dev        # http://localhost:3333
 ```
 
 Endpoints:
-- `GET /daily` — questão do dia (sem o gabarito).
-- `POST /daily/answer` — body `{ deviceToken, year, index, language, choice }`; valida no servidor e retorna `{ correct, correctAlternative, streak, alreadyAnswered }`.
+- `GET /questions/random` — sorteia uma questão (sem o gabarito). Aceita `?exclude=id1,id2` para não repetir as já vistas.
+- `POST /questions/answer` — body `{ year, index, language, choice }`; valida no servidor e retorna `{ correct, correctAlternative }`.
 
 ## Front (`web/`)
 

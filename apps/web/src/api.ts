@@ -16,9 +16,8 @@ export interface PublicQuestion {
     alternatives: PublicAlternative[];
 }
 
-export interface Daily {
-    challengeId: string;
-    date: string;
+export interface RandomQuestion {
+    id: string;
     year: number;
     index: number;
     language: string | null;
@@ -26,27 +25,72 @@ export interface Daily {
 }
 
 export interface AnswerResult {
-    alreadyAnswered: boolean;
     correct: boolean;
     correctAlternative: string;
-    choice: string;
-    streak: number;
 }
 
-export async function getDaily(): Promise<Daily> {
-    const res = await fetch('/api/daily');
-    if (!res.ok) throw new Error('Falha ao carregar o desafio do dia.');
+export interface AuthUser {
+    id: string;
+    email: string;
+    name: string;
+    picture: string | null;
+}
+
+// URL que inicia o login (passa pelo proxy do Vite).
+export const LOGIN_URL = '/api/auth/google';
+
+const TOKEN_KEY = 'token';
+
+function getToken(): string | null {
+    try {
+        return localStorage.getItem(TOKEN_KEY);
+    } catch {
+        return null;
+    }
+}
+
+function authHeader(): Record<string, string> {
+    const t = getToken();
+    return t ? { Authorization: `Bearer ${t}` } : {};
+}
+
+/**
+ * Após o login, o backend redireciona com o token
+ */
+export function consumeTokenFromUrl(): void {
+    const hash = window.location.hash;
+    const match = hash.match(/token=([^&]+)/);
+    if (match) {
+        try {
+            localStorage.setItem(TOKEN_KEY, decodeURIComponent(match[1]));
+        } catch {
+            /* ignore */
+        }
+        // limpa o #token da URL
+        window.history.replaceState(null, '', window.location.pathname);
+    }
+}
+
+/** Sorteia uma questão, evitando as já vistas. */
+export async function getRandomQuestion(
+    exclude: string[] = [],
+): Promise<RandomQuestion> {
+    const query = exclude.length
+        ? `?exclude=${encodeURIComponent(exclude.join(','))}`
+        : '';
+    const res = await fetch(`/api/questions/random${query}`);
+    if (!res.ok) throw new Error('Falha ao carregar a questão.');
     return res.json();
 }
 
-export async function submitAnswer(body: {
-    deviceToken: string;
+/** Envia a resposta e recebe a correção. */
+export async function checkAnswer(body: {
     year: number;
     index: number;
     language: string | null;
     choice: string;
 }): Promise<AnswerResult> {
-    const res = await fetch('/api/daily/answer', {
+    const res = await fetch('/api/questions/answer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -55,14 +99,21 @@ export async function submitAnswer(body: {
     return res.json();
 }
 
-export function getDeviceToken(): string {
-    let token = localStorage.getItem('deviceToken');
-    if (!token) {
-        token =
-            typeof crypto !== 'undefined' && crypto.randomUUID
-                ? crypto.randomUUID()
-                : String(Date.now()) + Math.random().toString(16).slice(2);
-        localStorage.setItem('deviceToken', token);
+/** Retorna o usuário logado, ou null. */
+export async function getMe(): Promise<AuthUser | null> {
+    if (!getToken()) return null;
+    const res = await fetch('/api/auth/me', { headers: authHeader() });
+    if (!res.ok) return null;
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+    return data && data.id ? (data as AuthUser) : null;
+}
+
+/** Encerra a sessão (descarta o token no cliente). */
+export async function logout(): Promise<void> {
+    try {
+        localStorage.removeItem(TOKEN_KEY);
+    } catch {
+        /* ignore */
     }
-    return token;
 }

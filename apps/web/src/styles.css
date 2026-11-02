@@ -30,6 +30,25 @@ body {
     border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 15px;
 }
 
+.top-right { display: flex; align-items: center; gap: 12px; }
+.login-btn {
+    background: var(--green); color: #fff; text-decoration: none;
+    border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600;
+}
+.login-btn:hover { background: #067a55; }
+.user { display: flex; align-items: center; gap: 8px; }
+.avatar { width: 30px; height: 30px; border-radius: 50%; }
+.avatar-fallback {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--green); color: #fff; font-size: 14px; font-weight: 700;
+}
+.user-name { font-size: 14px; font-weight: 600; color: var(--ink); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-btn {
+    background: none; border: 0; color: var(--muted); font-size: 13px;
+    cursor: pointer; text-decoration: underline; padding: 0;
+}
+.link-btn:hover { color: var(--ink); }
+
 .card {
     background: var(--card); border: 1px solid var(--line);
     border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
