@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { EnemApiModule } from '../enem-api/enem-api.module';
+import { AnswersModule } from '../answers/answers.module';
 import { QuestionsController } from './questions.controller';
 import { QuestionsService } from './questions.service';
 
 @Module({
-    imports: [EnemApiModule],
+    imports: [EnemApiModule, AnswersModule],
     controllers: [QuestionsController],
     providers: [QuestionsService],
 })

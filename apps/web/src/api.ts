@@ -83,7 +83,7 @@ export async function getRandomQuestion(
     return res.json();
 }
 
-/** Envia a resposta e recebe a correção. */
+/** Envia a resposta e recebe a correção. O token (se houver) faz pontuar. */
 export async function checkAnswer(body: {
     year: number;
     index: number;
@@ -92,10 +92,32 @@ export async function checkAnswer(body: {
 }): Promise<AnswerResult> {
     const res = await fetch('/api/questions/answer', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
         body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error('Falha ao enviar a resposta.');
+    return res.json();
+}
+
+export interface LeaderRow {
+    userId: string;
+    name: string;
+    picture: string | null;
+    score: number;
+    correct: number;
+    total: number;
+    rank: number;
+}
+
+export interface LeaderboardData {
+    top: LeaderRow[];
+    me: LeaderRow | null;
+}
+
+/** Ranking: top 10 + a posição do usuário logado. */
+export async function getLeaderboard(): Promise<LeaderboardData> {
+    const res = await fetch('/api/leaderboard', { headers: authHeader() });
+    if (!res.ok) throw new Error('Falha ao carregar o ranking.');
     return res.json();
 }
 

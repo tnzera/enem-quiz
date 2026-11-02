@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { EnemApiService } from '../enem-api/enem-api.service';
+import { AnswersService } from '../answers/answers.service';
 import {
     PublicQuestion,
     RandomQuestion,
@@ -25,7 +26,10 @@ export interface CheckAnswerResult {
 
 @Injectable()
 export class QuestionsService {
-    constructor(private readonly enemApi: EnemApiService) {}
+    constructor(
+        private readonly enemApi: EnemApiService,
+        private readonly answers: AnswersService,
+    ) {}
 
     /**
      * Sorteia uma questão aleatória
@@ -54,8 +58,11 @@ export class QuestionsService {
         return this.buildRandom(year, stub.index, stub.language);
     }
 
-    /** Valida a resposta . */
-    async checkAnswer(input: CheckAnswerInput): Promise<CheckAnswerResult> {
+    /** Valida a resposta e, se houver usuário logado, registra para pontuação. */
+    async checkAnswer(
+        input: CheckAnswerInput,
+        userId?: string | null,
+    ): Promise<CheckAnswerResult> {
         const choice = input.choice.toUpperCase() as Letter;
         if (!LETTERS.includes(choice)) {
             throw new BadRequestException('Alternativa inválida (use A–E).');
@@ -67,8 +74,15 @@ export class QuestionsService {
             input.language,
         );
 
+        const correct = choice === detail.correctAlternative;
+
+        if (userId) {
+            const id = questionId(input.year, input.index, input.language);
+            await this.answers.record(userId, id, correct);
+        }
+
         return {
-            correct: choice === detail.correctAlternative,
+            correct,
             correctAlternative: detail.correctAlternative,
         };
     }
