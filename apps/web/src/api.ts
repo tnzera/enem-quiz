@@ -114,6 +114,22 @@ export interface LeaderboardData {
     me: LeaderRow | null;
 }
 
+export interface DisciplineReport {
+    discipline: string;
+    total: number;
+    correct: number;
+    rate: number;
+}
+
+/** Desempenho do usuário logado por matéria (null se não estiver logado). */
+export async function getMyReport(): Promise<DisciplineReport[] | null> {
+    if (!getToken()) return null;
+    const res = await fetch('/api/reports/me', { headers: authHeader() });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.disciplines as DisciplineReport[];
+}
+
 /** Ranking: top 10 + a posição do usuário logado. */
 export async function getLeaderboard(): Promise<LeaderboardData> {
     const res = await fetch('/api/leaderboard', { headers: authHeader() });

@@ -30,13 +30,26 @@ body {
 .wrap { width: 100%; max-width: 760px; padding: 24px 0 64px; }
 
 /* ---------- Ranking ---------- */
-.lb-aside {
+.side {
     width: 300px; flex: none;
     position: sticky; top: 24px; margin-top: 24px;
+    display: flex; flex-direction: column; gap: 16px;
+}
+.side-card {
     background: var(--card); border: 1px solid var(--line);
     border-radius: 12px; padding: 16px;
     box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
+
+/* ---------- Relatório por matéria ---------- */
+.rp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.rp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.rp-name { font-size: 14px; font-weight: 600; }
+.rp-rate { font-size: 14px; font-weight: 700; color: var(--green); }
+.rp-bar { height: 8px; border-radius: 999px; background: #e6ece9; overflow: hidden; margin: 5px 0 3px; }
+.rp-fill { height: 100%; border-radius: 999px; background: var(--green-2); }
+.rp-count { font-size: 12px; color: var(--muted); }
+.rp-fab { bottom: 82px !important; } /* empilhado acima do botão do ranking */
 .lb-title { margin: 0 0 12px; font-size: 16px; color: var(--green); }
 .lb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
 .lb-row { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 8px; }
@@ -66,7 +79,7 @@ body {
 .lb-close { background: none; border: 0; font-size: 20px; cursor: pointer; color: var(--muted); line-height: 1; }
 
 @media (max-width: 900px) {
-    .lb-aside { display: none; }
+    .side { display: none; }
     .lb-fab {
         display: flex; align-items: center; justify-content: center;
         position: fixed; right: 18px; bottom: 18px; z-index: 40;

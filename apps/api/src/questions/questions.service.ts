@@ -78,7 +78,7 @@ export class QuestionsService {
 
         if (userId) {
             const id = questionId(input.year, input.index, input.language);
-            await this.answers.record(userId, id, correct);
+            await this.answers.record(userId, id, correct, detail.discipline);
         }
 
         return {

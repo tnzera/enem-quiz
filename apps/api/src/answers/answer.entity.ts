@@ -25,6 +25,10 @@ export class Answer {
     @Column()
     correct: boolean;
 
+    /** Matéria da questão (ex.: "matematica"), gravada para os relatórios. */
+    @Column({ type: 'varchar', nullable: true })
+    discipline: string | null;
+
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 }

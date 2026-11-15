@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
     AnswerResult,
     AuthUser,
+    DisciplineReport,
     LOGIN_URL,
     LeaderboardData,
     RandomQuestion,
@@ -9,11 +10,13 @@ import {
     consumeTokenFromUrl,
     getLeaderboard,
     getMe,
+    getMyReport,
     getRandomQuestion,
     logout,
 } from './api';
 import { RichText } from './rich-text';
 import { Leaderboard } from './Leaderboard';
+import { Report } from './Report';
 
 export default function App() {
     const [current, setCurrent] = useState<RandomQuestion | null>(null);
@@ -36,14 +39,27 @@ export default function App() {
     const [lbLoading, setLbLoading] = useState(true);
     const [lbOpen, setLbOpen] = useState(false);
 
-    // Carrega questão, usuário e ranking ao abrir.
+    // Relatório de desempenho por matéria (só para quem está logado).
+    const [report, setReport] = useState<DisciplineReport[] | null>(null);
+    const [rpOpen, setRpOpen] = useState(false);
+
+    // Carrega questão, usuário, ranking e relatório ao abrir.
     useEffect(() => {
         consumeTokenFromUrl(); // captura o token da volta do login (#token=...)
         void loadNext([]);
         void getMe().then(setUser);
         void loadLeaderboard();
+        void loadReport();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    async function loadReport() {
+        try {
+            setReport(await getMyReport());
+        } catch {
+            /* ignore */
+        }
+    }
 
     async function loadLeaderboard() {
         setLbLoading(true);
@@ -59,6 +75,7 @@ export default function App() {
     async function handleLogout() {
         await logout();
         setUser(null);
+        setReport(null);
         void loadLeaderboard();
     }
 
@@ -92,6 +109,7 @@ export default function App() {
             setResult(res);
             setStreak((s) => (res.correct ? s + 1 : 0));
             void loadLeaderboard(); // o score pode ter mudado
+            void loadReport(); // e a taxa por matéria também
         } catch (e) {
             setError((e as Error).message);
         } finally {
@@ -105,6 +123,7 @@ export default function App() {
     const leaderboard = (
         <Leaderboard data={lb} loading={lbLoading} meId={user?.id ?? null} />
     );
+    const reportPanel = user ? <Report data={report} /> : null;
 
     return (
         <div className="layout">
@@ -256,9 +275,17 @@ export default function App() {
             </main>
 
             {/* Ranking — lateral direita (desktop) */}
-            <aside className="lb-aside">
-                <h2 className="lb-title">🏆 Ranking</h2>
-                {leaderboard}
+            <aside className="side">
+                <div className="side-card">
+                    <h2 className="lb-title">🏆 Ranking</h2>
+                    {leaderboard}
+                </div>
+                {reportPanel && (
+                    <div className="side-card">
+                        <h2 className="lb-title">📊 Meu desempenho</h2>
+                        {reportPanel}
+                    </div>
+                )}
             </aside>
 
             {/* Botão flutuante + modal (telas menores) */}
@@ -282,6 +309,33 @@ export default function App() {
                             </button>
                         </div>
                         {leaderboard}
+                    </div>
+                </div>
+            )}
+
+            {/* Desempenho — botão e janela próprios (telas menores, só logado) */}
+            {reportPanel && (
+                <button
+                    className="lb-fab rp-fab"
+                    onClick={() => setRpOpen(true)}
+                    title="Ver meu desempenho"
+                >
+                    📊
+                </button>
+            )}
+            {rpOpen && reportPanel && (
+                <div className="lb-overlay" onClick={() => setRpOpen(false)}>
+                    <div className="lb-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="lb-modal-head">
+                            <h2 className="lb-title">📊 Meu desempenho</h2>
+                            <button
+                                className="lb-close"
+                                onClick={() => setRpOpen(false)}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        {reportPanel}
                     </div>
                 </div>
             )}

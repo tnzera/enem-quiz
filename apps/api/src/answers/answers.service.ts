@@ -14,6 +14,13 @@ export interface LeaderRow {
     rank: number;
 }
 
+export interface DisciplineReport {
+    discipline: string;
+    total: number;
+    correct: number;
+    rate: number; // % de acerto, com uma casa decimal
+}
+
 const POINTS = 100;
 
 @Injectable()
@@ -31,12 +38,40 @@ export class AnswersService {
         userId: string,
         questionId: string,
         correct: boolean,
+        discipline: string | null,
     ): Promise<void> {
         const exists = await this.repo.findOne({
             where: { userId, questionId },
         });
         if (exists) return;
-        await this.repo.save(this.repo.create({ userId, questionId, correct }));
+        await this.repo.save(
+            this.repo.create({ userId, questionId, correct, discipline }),
+        );
+    }
+
+    /** Taxa de acerto do usuário por matéria. */
+    async getReportByDiscipline(userId: string): Promise<DisciplineReport[]> {
+        const rows = await this.repo
+            .createQueryBuilder('a')
+            .select('a.discipline', 'discipline')
+            .addSelect('COUNT(*)', 'total')
+            .addSelect('SUM(CASE WHEN a.correct THEN 1 ELSE 0 END)', 'correct')
+            .where('a.user_id = :userId', { userId })
+            .andWhere('a.discipline IS NOT NULL')
+            .groupBy('a.discipline')
+            .orderBy('a.discipline', 'ASC')
+            .getRawMany();
+
+        return rows.map((r) => {
+            const total = Number(r.total);
+            const correct = Number(r.correct);
+            return {
+                discipline: r.discipline,
+                total,
+                correct,
+                rate: total ? Math.round((correct / total) * 1000) / 10 : 0,
+            };
+        });
     }
 
     /** Ranking de todos os usuários, do maior para o menor score. */
