@@ -122,12 +122,24 @@ export interface DisciplineReport {
 }
 
 /** Desempenho do usuário logado por matéria (null se não estiver logado). */
-export async function getMyReport(): Promise<DisciplineReport[] | null> {
+export interface MonthlyPoint {
+    month: string; // 'YYYY-MM'
+    total: number;
+    correct: number;
+    rate: number;
+}
+
+export interface MyReport {
+    disciplines: DisciplineReport[];
+    monthly: MonthlyPoint[];
+}
+
+export async function getMyReport(): Promise<MyReport | null> {
     if (!getToken()) return null;
     const res = await fetch('/api/reports/me', { headers: authHeader() });
     if (!res.ok) return null;
     const data = await res.json();
-    return data.disciplines as DisciplineReport[];
+    return data as MyReport;
 }
 
 /** Ranking: top 10 + a posição do usuário logado. */

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
     AnswerResult,
     AuthUser,
-    DisciplineReport,
+    MyReport,
     LOGIN_URL,
     LeaderboardData,
     RandomQuestion,
@@ -40,7 +40,7 @@ export default function App() {
     const [lbOpen, setLbOpen] = useState(false);
 
     // Relatório de desempenho por matéria (só para quem está logado).
-    const [report, setReport] = useState<DisciplineReport[] | null>(null);
+    const [report, setReport] = useState<MyReport | null>(null);
     const [rpOpen, setRpOpen] = useState(false);
 
     // Carrega questão, usuário, ranking e relatório ao abrir.

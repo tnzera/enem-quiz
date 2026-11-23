@@ -21,6 +21,13 @@ export interface DisciplineReport {
     rate: number; // % de acerto, com uma casa decimal
 }
 
+export interface MonthlyPoint {
+    month: string; // 'YYYY-MM'
+    total: number;
+    correct: number;
+    rate: number; // % de acerto, com uma casa decimal
+}
+
 const POINTS = 100;
 
 @Injectable()
@@ -67,6 +74,34 @@ export class AnswersService {
             const correct = Number(r.correct);
             return {
                 discipline: r.discipline,
+                total,
+                correct,
+                rate: total ? Math.round((correct / total) * 1000) / 10 : 0,
+            };
+        });
+    }
+
+    /** Taxa de acerto do usuário mês a mês (últimos 12 meses). */
+    async getMonthlyEvolution(userId: string): Promise<MonthlyPoint[]> {
+        const monthExpr = "to_char(date_trunc('month', a.created_at), 'YYYY-MM')";
+        const rows = await this.repo
+            .createQueryBuilder('a')
+            .select(monthExpr, 'month')
+            .addSelect('COUNT(*)', 'total')
+            .addSelect('SUM(CASE WHEN a.correct THEN 1 ELSE 0 END)', 'correct')
+            .where('a.user_id = :userId', { userId })
+            .andWhere(
+                "a.created_at >= date_trunc('month', now()) - interval '11 months'",
+            )
+            .groupBy(monthExpr)
+            .orderBy('month', 'ASC')
+            .getRawMany();
+
+        return rows.map((r) => {
+            const total = Number(r.total);
+            const correct = Number(r.correct);
+            return {
+                month: r.month,
                 total,
                 correct,
                 rate: total ? Math.round((correct / total) * 1000) / 10 : 0,
