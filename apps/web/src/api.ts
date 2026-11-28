@@ -167,3 +167,70 @@ export async function logout(): Promise<void> {
         /* ignore */
     }
 }
+
+// ---------------------------------------------------------------- Salas
+
+export interface RoomPlayer {
+    userId: string;
+    name: string;
+    picture: string | null;
+    isHost: boolean;
+    answered: number;
+}
+
+export interface RoomResult {
+    userId: string;
+    name: string;
+    picture: string | null;
+    correct: number;
+    wrong: number;
+    unanswered: number;
+    winner: boolean;
+}
+
+export interface RoomState {
+    code: string;
+    status: 'waiting' | 'playing' | 'finished';
+    isHost: boolean;
+    durationMinutes: number;
+    questionCount: number;
+    remainingMs: number | null;
+    players: RoomPlayer[];
+    me: { answered: number; correct: number; done: boolean };
+    question: (PublicQuestion & { position: number }) | null;
+    results: RoomResult[] | null;
+}
+
+/** Chamada autenticada às rotas de sala; repassa a mensagem de erro do backend. */
+async function roomRequest<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
+    const res = await fetch(`/api/rooms${path}`, {
+        method,
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+        const msg = Array.isArray(data?.message) ? data.message[0] : data?.message;
+        throw new Error(msg ?? 'Erro na sala.');
+    }
+    return data as T;
+}
+
+export const createRoom = (durationMinutes: number, questionCount: number) =>
+    roomRequest<{ code: string }>('', 'POST', { durationMinutes, questionCount });
+
+export const joinRoom = (code: string) =>
+    roomRequest<{ code: string }>(`/${encodeURIComponent(code)}/join`, 'POST');
+
+export const startRoom = (code: string) =>
+    roomRequest<{ ok: boolean }>(`/${encodeURIComponent(code)}/start`, 'POST');
+
+export const getRoom = (code: string) =>
+    roomRequest<RoomState>(`/${encodeURIComponent(code)}`);
+
+export const answerRoom = (code: string, choice: string) =>
+    roomRequest<AnswerResult & { done: boolean }>(
+        `/${encodeURIComponent(code)}/answer`,
+        'POST',
+        { choice },
+    );

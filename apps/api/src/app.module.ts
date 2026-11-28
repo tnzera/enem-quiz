@@ -6,6 +6,7 @@ import { QuestionsModule } from './questions/questions.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AnswersModule } from './answers/answers.module';
+import { RoomsModule } from './rooms/rooms.module';
 import { User } from './users/user.entity';
 import { Answer } from './answers/answer.entity';
 
@@ -33,6 +34,7 @@ import { Answer } from './answers/answer.entity';
         AuthModule,
         UsersModule,
         AnswersModule,
+        RoomsModule,
     ],
 })
 export class AppModule {}

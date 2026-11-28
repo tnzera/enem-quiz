@@ -14,9 +14,10 @@ import {
     getRandomQuestion,
     logout,
 } from './api';
-import { RichText } from './rich-text';
+import { QuestionBody } from './QuestionBody';
 import { Leaderboard } from './Leaderboard';
 import { Report } from './Report';
+import { GameMenu } from './Game';
 
 export default function App() {
     const [current, setCurrent] = useState<RandomQuestion | null>(null);
@@ -163,6 +164,7 @@ export default function App() {
                                 Entrar com Google
                             </a>
                         )}
+                        <GameMenu user={user} />
                         <div className="streak" title="Acertos seguidos">
                             🔥 {streak}
                         </div>
@@ -182,66 +184,12 @@ export default function App() {
                     </section>
                 ) : (
                     <section className="card">
-                        <p className="tag">
-                            {q.title}
-                            {q.discipline ? ` · ${q.discipline}` : ''}
-                            {q.language ? ` · ${q.language}` : ''}
-                        </p>
-
-                        <div className="context">
-                            <RichText text={q.context} />
-                        </div>
-
-                        {q.files
-                            .filter((f) => !(q.context && q.context.includes(f)))
-                            .map((f, i) => (
-                                <img key={i} src={f} alt="" className="q-img" />
-                            ))}
-
-                        {q.alternativesIntroduction && (
-                            <p className="intro">
-                                <RichText text={q.alternativesIntroduction} />
-                            </p>
-                        )}
-
-                        <ul className="alts">
-                            {q.alternatives.map((a) => {
-                                const isChosen = selected === a.letter;
-                                const isCorrect =
-                                    answered && result!.correctAlternative === a.letter;
-                                const isWrongChoice =
-                                    answered && isChosen && !result!.correct;
-                                const cls = [
-                                    'alt',
-                                    isChosen ? 'chosen' : '',
-                                    isCorrect ? 'correct' : '',
-                                    isWrongChoice ? 'wrong' : '',
-                                ]
-                                    .filter(Boolean)
-                                    .join(' ');
-                                return (
-                                    <li key={a.letter}>
-                                        <button
-                                            className={cls}
-                                            disabled={answered}
-                                            onClick={() => setSelected(a.letter)}
-                                        >
-                                            <span className="letter">{a.letter}</span>
-                                            <span className="alt-text">
-                                                {a.text ? <RichText text={a.text} /> : null}
-                                                {a.file ? (
-                                                    <img
-                                                        src={a.file}
-                                                        alt=""
-                                                        className="q-img"
-                                                    />
-                                                ) : null}
-                                            </span>
-                                        </button>
-                                    </li>
-                                );
-                            })}
-                        </ul>
+                        <QuestionBody
+                            q={q}
+                            selected={selected}
+                            result={result}
+                            onSelect={setSelected}
+                        />
 
                         {!answered ? (
                             <button

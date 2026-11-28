@@ -74,6 +74,70 @@ body {
     overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
+/* ---------- Salas (jogo em grupo) ---------- */
+.gm { position: relative; }
+.gm-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
+    background: var(--card); font-size: 18px; cursor: pointer; line-height: 1;
+}
+.gm-btn:hover { border-color: var(--green-2); }
+.gm-menu {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 45;
+    min-width: 190px; padding: 6px; display: flex; flex-direction: column;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.12);
+}
+.gm-menu button {
+    text-align: left; background: none; border: 0; padding: 9px 12px;
+    border-radius: 6px; font: inherit; font-size: 14px; color: var(--ink); cursor: pointer;
+}
+.gm-menu button:hover { background: #f2fbf7; }
+.gm-menu p { margin: 0; padding: 8px 10px; font-size: 13px; }
+
+.lb-modal.rm-modal { max-width: 760px; max-height: 90vh; }
+.rm-error { margin: 8px 0; font-size: 14px; }
+.rm-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.rm-opt {
+    padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
+    background: #fff; font: inherit; font-size: 14px; color: var(--ink); cursor: pointer;
+}
+.rm-opt.active { border-color: var(--green); background: #e8f8f0; font-weight: 600; }
+.rm-input {
+    display: block; width: 100%; margin: 4px 0 4px; padding: 12px 14px;
+    font: inherit; font-size: 22px; letter-spacing: .25em; text-transform: uppercase;
+    border: 1px solid var(--line); border-radius: 10px;
+}
+.rm-input:focus { outline: 2px solid var(--green-2); border-color: transparent; }
+
+.rm-code-box {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 14px; border-radius: 12px; background: #f2fbf7; border: 1px dashed var(--green-2);
+}
+.rm-code-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.rm-code { font-size: 34px; font-weight: 800; letter-spacing: .2em; color: var(--ink); font-family: Consolas, monospace; }
+.rm-config { text-align: center; margin: 8px 0 16px; }
+.rm-players { list-style: none; padding: 0; margin: 0 0 14px; display: flex; flex-direction: column; gap: 6px; }
+.rm-players li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.rm-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #e8f8f0; color: var(--green); font-weight: 600; }
+.rm-progress { margin-left: auto; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rm-wait { text-align: center; }
+
+.rm-status { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.rm-timer { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rm-done { padding: 14px; border-radius: 10px; background: #e8f8f0; margin: 0 0 14px; }
+
+.rm-winner {
+    display: flex; align-items: center; gap: 12px; padding: 16px; margin-bottom: 14px;
+    border-radius: 12px; background: #fff7e6; border: 1px solid #f3d9bf; font-size: 17px;
+}
+.rm-trophy { font-size: 30px; }
+.rm-table-wrap { overflow-x: auto; margin-bottom: 4px; }
+.rm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.rm-table th, .rm-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+.rm-table th { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.rm-table td:nth-child(n+3), .rm-table th:nth-child(n+3) { text-align: center; font-variant-numeric: tabular-nums; }
+.rm-table tr.rm-win td { background: #e8f8f0; font-weight: 600; }
+
 .rp-fab { bottom: 82px !important; } /* empilhado acima do botão do ranking */
 .lb-title { margin: 0 0 12px; font-size: 16px; color: var(--green); }
 .lb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -102,6 +166,12 @@ body {
 }
 .lb-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .lb-close { background: none; border: 0; font-size: 20px; cursor: pointer; color: var(--muted); line-height: 1; }
+
+@media (max-width: 600px) {
+    .top { flex-wrap: wrap; gap: 10px; }
+    .top-right { margin-left: auto; gap: 8px; }
+    .user-name { display: none; }
+}
 
 @media (max-width: 900px) {
     .side { display: none; }
